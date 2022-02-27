@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Exceptions\UserStatusException;
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -40,17 +42,29 @@ class LoginRequest extends FormRequest
      * @return void
      *
      * @throws ValidationException
+     * @throws UserStatusException
      */
     public function authenticate()
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('username', 'password'), $this->boolean('remember'))) {
+        $attempt = Auth::attempt($this->only('username', 'password'), $this->boolean('remember'));
+
+        if (!$attempt) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'username' => __('auth.failed'),
             ]);
+        }
+
+        $user = Auth::user();
+        if (!$user->is_active) {
+            RateLimiter::hit($this->throttleKey());
+
+            Auth::logout();
+
+            throw new UserStatusException();
         }
 
         RateLimiter::clear($this->throttleKey());

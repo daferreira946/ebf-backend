@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\UserStatusException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ class AuthenticatedSessionController extends Controller
      *
      * @param LoginRequest $request
      * @return Response
+     * @throws UserStatusException
      */
     public function store(LoginRequest $request)
     {
