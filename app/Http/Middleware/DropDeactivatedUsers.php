@@ -3,12 +3,9 @@
 namespace App\Http\Middleware;
 
 use App\Exceptions\UserStatusException;
-use Auth;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Laravel\Sanctum\Guard;
-use Laravel\Sanctum\Sanctum;
 
 class DropDeactivatedUsers
 {
